@@ -1,5 +1,6 @@
 package quanlysinhvien.demo.modules.decks.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +33,7 @@ public class DeckController {
 
     // Tạo Deck mới cho user hiện tại (lấy từ JWT token)
     @PostMapping
-    public ResponseEntity<?> createDeck(@RequestBody DeckRequest request) {
+    public ResponseEntity<?> createDeck(@Valid @RequestBody DeckRequest request) {
         try {
             Long userId = getCurrentUserId();
             Deck deck = Deck.builder()

@@ -1,5 +1,6 @@
 package quanlysinhvien.demo.modules.cards.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class CardController {
 
     // Tạo Card mới trong một Deck
     @PostMapping("/deck/{deckId}")
-    public ResponseEntity<?> createCard(@PathVariable Long deckId, @RequestBody CardRequest request) {
+    public ResponseEntity<?> createCard(@PathVariable Long deckId, @Valid @RequestBody CardRequest request) {
         try {
             Card card = Card.builder()
                     .front(request.getFront())
@@ -57,7 +58,7 @@ public class CardController {
 
     // Xử lý gửi kết quả ôn tập một Card (Spaced Repetition)
     @PostMapping("/{cardId}/review")
-    public ResponseEntity<?> reviewCard(@PathVariable Long cardId, @RequestBody CardReviewRequest request) {
+    public ResponseEntity<?> reviewCard(@PathVariable Long cardId, @Valid @RequestBody CardReviewRequest request) {
         try {
             Card reviewedCard = cardService.reviewCard(cardId, request.getGrade());
             return ResponseEntity.ok(mapToResponse(reviewedCard));

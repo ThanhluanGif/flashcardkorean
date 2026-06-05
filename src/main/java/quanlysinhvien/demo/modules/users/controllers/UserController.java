@@ -1,5 +1,6 @@
 package quanlysinhvien.demo.modules.users.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class UserController {
 
     // API Đăng ký tài khoản
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserRegisterRequest request) {
+    public ResponseEntity<?> register(@Valid @RequestBody UserRegisterRequest request) {
         try {
             UserResponse response = userService.registerUser(request);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -32,7 +33,7 @@ public class UserController {
 
     // API Đăng nhập
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequest request) {
         try {
             AuthenticationResponse response = userService.authenticateUser(request);
             return ResponseEntity.ok(response);
