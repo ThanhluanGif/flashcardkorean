@@ -3,11 +3,14 @@ package quanlysinhvien.demo.modules.decks.controllers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import quanlysinhvien.demo.modules.decks.dtos.DeckRequest;
 import quanlysinhvien.demo.modules.decks.dtos.DeckResponse;
 import quanlysinhvien.demo.modules.decks.entities.Deck;
 import quanlysinhvien.demo.modules.decks.services.DeckService;
+import quanlysinhvien.demo.modules.users.entities.User;
+import quanlysinhvien.demo.modules.users.repositories.UserRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,11 +21,20 @@ import java.util.stream.Collectors;
 public class DeckController {
 
     private final DeckService deckService;
+    private final UserRepository userRepository;
 
-    // Tạo Deck mới cho một user (truyền userId qua query param tạm thời trước khi có Security)
+    private Long getCurrentUserId() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getId();
+    }
+
+    // Tạo Deck mới cho user hiện tại (lấy từ JWT token)
     @PostMapping
-    public ResponseEntity<?> createDeck(@RequestParam Long userId, @RequestBody DeckRequest request) {
+    public ResponseEntity<?> createDeck(@RequestBody DeckRequest request) {
         try {
+            Long userId = getCurrentUserId();
             Deck deck = Deck.builder()
                     .title(request.getTitle())
                     .description(request.getDescription())
@@ -35,9 +47,10 @@ public class DeckController {
         }
     }
 
-    // Lấy danh sách Deck của một User
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<DeckResponse>> getDecksByUser(@PathVariable Long userId) {
+    // Lấy danh sách Deck của user hiện tại
+    @GetMapping("/my-decks")
+    public ResponseEntity<List<DeckResponse>> getMyDecks() {
+        Long userId = getCurrentUserId();
         List<DeckResponse> responses = deckService.getDecksByUserId(userId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -49,6 +62,12 @@ public class DeckController {
     public ResponseEntity<?> getDeckById(@PathVariable Long deckId) {
         try {
             Deck deck = deckService.getDeckById(deckId);
+            
+            // Bảo mật bổ sung: Kiểm tra xem deck có thuộc về user hiện tại không
+            if (!deck.getUser().getId().equals(getCurrentUserId())) {
+                return new ResponseEntity<>("Bạn không có quyền truy cập bộ thẻ này", HttpStatus.FORBIDDEN);
+            }
+            
             return ResponseEntity.ok(mapToResponse(deck));
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -59,6 +78,10 @@ public class DeckController {
     @DeleteMapping("/{deckId}")
     public ResponseEntity<?> deleteDeck(@PathVariable Long deckId) {
         try {
+            Deck deck = deckService.getDeckById(deckId);
+            if (!deck.getUser().getId().equals(getCurrentUserId())) {
+                return new ResponseEntity<>("Bạn không có quyền xóa bộ thẻ này", HttpStatus.FORBIDDEN);
+            }
             deckService.deleteDeck(deckId);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {

@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import quanlysinhvien.demo.modules.users.dtos.AuthenticationResponse;
+import quanlysinhvien.demo.modules.users.dtos.UserLoginRequest;
 import quanlysinhvien.demo.modules.users.dtos.UserRegisterRequest;
 import quanlysinhvien.demo.modules.users.dtos.UserResponse;
 import quanlysinhvien.demo.modules.users.services.UserService;
@@ -25,6 +27,17 @@ public class UserController {
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    // API Đăng nhập
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody UserLoginRequest request) {
+        try {
+            AuthenticationResponse response = userService.authenticateUser(request);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>("Sai tài khoản hoặc mật khẩu", HttpStatus.UNAUTHORIZED);
         }
     }
 
