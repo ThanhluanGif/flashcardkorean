@@ -6,6 +6,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import quanlysinhvien.demo.modules.decks.entities.Deck;
 
 @Entity
 @Table(name = "users")
@@ -34,7 +37,12 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private Role role = Role.USER;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Deck> decks = new ArrayList<>();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
