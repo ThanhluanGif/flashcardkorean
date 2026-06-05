@@ -80,3 +80,36 @@ Website cần giao diện để người dùng tương tác, có thể chọn m�
 1. Viết Unit Test và Integration Test với `JUnit` và `Mockito`.
 2. Tích hợp Swagger (OpenAPI) để document các API endpoints.
 3. Đóng gói ứng dụng thành `.jar` và triển khai lên server (AWS, Heroku, Render...) cùng với Database.
+
+---
+
+## 🔍 Đánh giá Hệ thống Backend Hiện tại (Kết thúc Giai đoạn 2.4)
+
+Sau khi hoàn thành các phần **Entities, Repositories, Services và Controllers**, đây là đánh giá tổng quan về hiện trạng của hệ thống. Những ghi chép này dùng làm định hướng để hoàn thiện dự án trong các giai đoạn (Phase 2.5+) sắp tới:
+
+### ✅ Ưu điểm (Strengths)
+1. **Kiến trúc mạch lạc (Modular Monolith):** Áp dụng cấu trúc `Package by Feature` giúp code dễ bảo trì. Các modules `users`, `decks`, `cards` hoàn toàn độc lập, rất dễ để mở rộng sau này (ví dụ: chia thành Microservices).
+2. **Luồng dữ liệu chuẩn 3 lớp:** Separation of Concerns được thực hiện tốt qua `Controller (HTTP)` -> `Service (Business Logic)` -> `Repository (Database)`.
+3. **Quản lý Dữ liệu linh hoạt:** Sử dụng DTO (Data Transfer Object) để tách biệt giữa Entity (Database) và dữ liệu trả về cho Client, giúp ẩn đi các trường nhạy cảm (như mật khẩu).
+4. **Logic nghiệp vụ lõi đã hình thành:** Thuật toán **Spaced Repetition System (SRS - Lặp lại ngắt quãng)** đã được cài đặt thành công ở `CardService.reviewCard`, cho phép tự động tính toán thời gian ôn tập tiếp theo dựa trên trí nhớ của người dùng.
+
+### ⚠️ Hạn chế & Vấn đề Cần Khắc phục (Limitations)
+1. **Lỗ hổng Bảo mật Nghiêm trọng (Security Flaws):**
+   - Mật khẩu người dùng đang được lưu dạng *Plain Text* (chưa băm bằng BCrypt).
+   - Chưa tích hợp hệ thống xác thực (Authentication). Bất kỳ ai cũng có thể gọi API nếu biết URL.
+   - Lỗi **IDOR** (Insecure Direct Object Reference): API tạo Deck đang truyền `userId` trực tiếp qua URL. Người dùng A có thể truyền `userId` của B để thao tác dữ liệu.
+2. **Thiếu Kiểm tra Dữ liệu Đầu vào (Validation):**
+   - Chưa chặn được các trường hợp truyền Email sai định dạng, hay Title bị bỏ trống từ Frontend gửi xuống. 
+3. **Xử lý Lỗi Cục bộ (Error Handling):**
+   - Hiện tại đang sử dụng `try-catch` lặp lại rất nhiều trong các Controller, và trả về lỗi thô (String). 
+   - Thiếu một **Global Exception Handler** (`@ControllerAdvice`) để chuẩn hóa Response lỗi thống nhất trên toàn hệ thống.
+4. **Vấn đề Hiệu suất khi Dữ liệu Lớn:**
+   - Các API `getAll` đang trả về toàn bộ dữ liệu. Cần bổ sung cơ chế **Phân trang và Sắp xếp (Pagination & Sorting)** cho các bảng có nhiều bản ghi (như `Cards`).
+5. **Thiếu API Cập nhật (Update):** Hệ thống hiện có Tạo (Create), Đọc (Read), Xóa (Delete) nhưng còn thiếu các chức năng Chỉnh sửa (Update) cho Bộ thẻ và Thẻ.
+
+### 🎯 Kế hoạch Cải thiện (Cho Giai đoạn 2.5)
+Để khắc phục những hạn chế trên, các bước phát triển Backend tiếp theo cần tập trung vào:
+- **Phase 2.5.1 (Security):** Tích hợp `Spring Security` + `JWT`. Chuyển sang lấy `userId` tự động từ Token thay vì client truyền vào.
+- **Phase 2.5.2 (Validation):** Thêm thư viện `spring-boot-starter-validation`, sử dụng các Annotation (`@NotBlank`, `@Email`) vào DTOs.
+- **Phase 2.5.3 (Exception Handling):** Tạo `GlobalExceptionHandler` để bọc các Exception thành `ApiResponse` chuẩn (VD: `{ "status": 400, "message": "Email đã tồn tại" }`).
+- **Phase 2.5.4 (Features):** Cập nhật thêm các API `PUT/PATCH` để chỉnh sửa Decks/Cards và cấu hình `Pageable` cho Repositories.
