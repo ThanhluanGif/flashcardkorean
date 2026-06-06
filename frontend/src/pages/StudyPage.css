@@ -32,10 +32,10 @@
 /* Flashcard 3D Flip Effect */
 .flashcard-scene {
   width: 100%;
-  height: 350px;
+  height: 280px; /* Reduced height for compactness */
   perspective: 1000px;
   cursor: pointer;
-  margin-bottom: 40px;
+  margin-bottom: 25px;
 }
 
 .flashcard {
@@ -59,40 +59,86 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 20px; /* Reduced padding */
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
   background-color: white;
-  border: 1px solid #eee;
+  border: 1px solid #edf2f7;
   text-align: center;
+  overflow-y: auto; /* Allow scrolling for very long content */
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+.nav-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: white;
+  color: #4a5568;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: #f7fafc;
+  border-color: #cbd5e0;
+}
+
+.nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .flashcard-front {
-  color: #2c3e50;
+  color: #1a202c;
 }
 
 .flashcard-front h2 {
-  font-size: 48px;
+  font-size: clamp(24px, 8vw, 48px); /* Responsive font size */
   margin: 0;
+  word-break: break-word;
+  max-width: 100%;
+  line-height: 1.2;
 }
 
 .flashcard-back {
   transform: rotateY(180deg);
-  background-color: #f8fbff;
+  background-color: #f7fafc;
 }
 
 .flashcard-back h3 {
-  font-size: 32px;
-  color: #4a90e2;
+  font-size: clamp(20px, 6vw, 32px); /* Responsive font size */
+  color: #3182ce;
   margin-bottom: 20px;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .flashcard-back .example-text {
   font-style: italic;
-  color: #666;
-  margin-top: 20px;
+  color: #4a5568;
+  margin-top: 15px;
   font-size: 16px;
   line-height: 1.6;
+  background: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 4px solid #3182ce;
+  text-align: left;
+  width: 100%;
 }
 
 /* Control Buttons */
@@ -103,10 +149,55 @@
   align-items: center;
 }
 
-.hint-text {
-  color: #999;
+.action-buttons-container {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.action-primary-btn {
+  flex: 2;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: #4a90e2;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+.action-primary-btn:hover {
+  background: #357abd;
+}
+
+.action-primary-btn:active {
+  transform: translateY(2px);
+}
+
+.action-secondary-btn {
+  flex: 1;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: white;
+  color: #4a5568;
+  font-weight: 600;
   font-size: 14px;
-  margin-bottom: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-secondary-btn:hover:not(:disabled) {
+  background: #f7fafc;
+  border-color: #cbd5e0;
+}
+
+.action-secondary-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .grading-buttons {

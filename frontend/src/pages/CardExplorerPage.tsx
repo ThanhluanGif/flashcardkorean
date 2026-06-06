@@ -104,7 +104,7 @@ const CardExplorerPage: React.FC = () => {
 
   const playAudio = (url: string) => {
     const audio = new Audio(url);
-    audio.play().catch(e => toast.error('Không thể phát âm thanh'));
+    audio.play().catch(() => toast.error('Không thể phát âm thanh'));
   };
 
   return (

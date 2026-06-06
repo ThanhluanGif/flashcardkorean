@@ -69,10 +69,12 @@
   font-weight: 700;
   font-size: 18px;
   color: #2c3e50;
+  word-break: break-word;
 }
 
 .card-back {
   color: #555;
+  word-break: break-word;
 }
 
 .status-badge {

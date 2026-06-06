@@ -93,13 +93,17 @@ Hệ thống sử dụng cơ sở dữ liệu quan hệ với sơ đồ thực t
 3.  **CI/CD:** Thiết lập GitHub Actions tự động kiểm thử và build project khi có code mới.
 4.  **Logging:** Cấu hình log tập trung giúp theo dõi trạng thái container dễ dàng.
 
-### 📍 Giai đoạn 7: Nâng cao Trải nghiệm & Game hóa (Kế hoạch 🚀)
-1.  **Gamification:** Hệ thống tích điểm (XP), cấp độ (Level) và Chuỗi ngày học (Streak) để tăng tính gắn kết của người dùng.
-2.  **AI Integration:** Sử dụng AI để tự động tạo câu ví dụ, gợi ý nghĩa và giải thích ngữ pháp cho từ vựng mới.
-3.  **Smart Notifications:** Hệ thống nhắc nhở ôn tập qua Email hoặc Web Push khi có thẻ đến hạn (Next Review Date).
-4.  **Chế độ học đa dạng:** Bổ sung các chế độ Quiz (Trắc nghiệm), Nghe chọn ảnh, và Luyện viết chính tả.
-5.  **Import/Export:** Hỗ trợ nhập dữ liệu từ Excel/CSV hoặc xuất bộ thẻ ra định dạng Anki/PDF.
-6.  **PWA (Progressive Web App):** Hỗ trợ cài đặt ứng dụng lên màn hình điện thoại và sử dụng offline cơ bản.
+### 📍 Giai đoạn 7: Nâng cao Trải nghiệm & Game hóa (Đang thực hiện 🛠️)
+1.  **UX Optimization (Hoàn thành ✅):**
+    - Font chữ linh hoạt (`clamp`) và chống vỡ khung (`word-break`).
+    - Hỗ trợ nội dung dài với thanh cuộn nội bộ trong thẻ.
+    - Cải tiến luồng học SRS: Nút "Quay lại", nút "Lật thẻ" rõ ràng, và logic học lại ngay lập tức (Again queue).
+2.  **Gamification:** Hệ thống tích điểm (XP), cấp độ (Level) và Chuỗi ngày học (Streak) để tăng tính gắn kết của người dùng.
+3.  **AI Integration:** Sử dụng AI để tự động tạo câu ví dụ, gợi ý nghĩa và giải thích ngữ pháp cho từ vựng mới.
+4.  **Smart Notifications:** Hệ thống nhắc nhở ôn tập qua Email hoặc Web Push khi có thẻ đến hạn (Next Review Date).
+5.  **Chế độ học đa dạng:** Bổ sung các chế độ Quiz (Trắc nghiệm), Nghe chọn ảnh, và Luyện viết chính tả.
+6.  **Import/Export:** Hỗ trợ nhập dữ liệu từ Excel/CSV hoặc xuất bộ thẻ ra định dạng Anki/PDF.
+7.  **PWA (Progressive Web App):** Hỗ trợ cài đặt ứng dụng lên màn hình điện thoại và sử dụng offline cơ bản.
 
 ---
 
@@ -110,8 +114,52 @@ Hệ thống sử dụng cơ sở dữ liệu quan hệ với sơ đồ thực t
 - Frontend đáp ứng tốt các luồng học tập cơ bản.
 - Hệ thống bảo mật JWT hoạt động ổn định.
 - Đã có tính năng tìm kiếm, phân trang và thống kê trực quan.
+- **UX cải tiến:** Giao diện học tập (Study) mượt mà, hỗ trợ tốt cho cả từ vựng dài và các thiết bị màn hình nhỏ.
 
 ### ⚠️ Vấn đề cần ưu tiên xử lý
 - **Media Upload:** Hiện tại chỉ hỗ trợ URL. Cần tích hợp Cloudinary/S3 để hỗ trợ upload ảnh/âm thanh trực tiếp.
-- **UX Details:** Bổ sung thêm Skeleton loading và các hiệu ứng chuyển cảnh mượt mà hơn.
+- **Skeleton Loading:** Bổ sung thêm Skeleton loading cho Dashboard và Card Explorer.
 - **Testing:** Cần bổ sung thêm Unit Test cho các trường hợp biên của thuật toán SRS.
+
+---
+
+## 🛠️ Hướng dẫn Khởi chạy & Phát triển
+
+### 1. Yêu cầu hệ thống (Prerequisites)
+- **Java:** JDK 17.
+- **Node.js:** v20.x trở lên.
+- **Database:** MySQL 8.0.
+- **Docker & Docker Compose** (Khuyên dùng để chạy nhanh).
+
+### 2. Khởi chạy nhanh bằng Docker
+Đây là cách nhanh nhất để chạy toàn bộ hệ thống (DB, Backend, Frontend):
+```bash
+# Tại thư mục gốc của dự án
+docker-compose up -d --build
+```
+- **Frontend:** http://localhost (Cổng 80)
+- **Backend API:** http://localhost:8082
+- **Swagger UI:** http://localhost:8082/swagger-ui/index.html
+- **Database:** Localhost cổng 3307 (User: `root`, Pass: `1234`)
+
+### 3. Chạy thủ công cho Phát triển (Local Development)
+
+#### Chạy Backend:
+1. Tạo database tên `flashcard_db` trong MySQL của bạn.
+2. Cập nhật thông tin kết nối trong `src/main/resources/application.yml`.
+3. Chạy lệnh:
+```bash
+mvn spring-boot:run
+```
+
+#### Chạy Frontend:
+1. Di chuyển vào thư mục frontend: `cd frontend`
+2. Cài đặt thư viện: `npm install`
+3. Chạy chế độ dev: `npm run dev`
+- **Địa chỉ:** http://localhost:5173
+
+### 4. Quy trình Đóng góp (Contribution)
+- Tuân thủ cấu hình ESLint và Prettier có sẵn trong frontend.
+- Backend sử dụng Checkstyle hoặc tuân thủ chuẩn Java Google Style.
+- Mọi API mới cần được định nghĩa trong Swagger/OpenAPI.
+- Fix bug cần có mô tả chi tiết và test case đi kèm.

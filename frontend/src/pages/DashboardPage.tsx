@@ -84,6 +84,15 @@ const DashboardPage: React.FC = () => {
     }
   };
 
+  const togglePrivacy = async (deck: Deck) => {
+    try {
+      await updateDeck(deck.id, deck.title, deck.description, !deck.isPublic);
+      toast.success(`Đã chuyển sang chế độ ${!deck.isPublic ? 'Công khai' : 'Riêng tư'}`);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
   return (
     <div className="dashboard-container">
       {stats && (
@@ -149,7 +158,13 @@ const DashboardPage: React.FC = () => {
                   <Link to={`/decks/${deck.id}`} style={{ textDecoration: 'none' }}>
                     <h3>{deck.title}</h3>
                   </Link>
-                  {deck.isPublic ? <Globe size={16} color="#4caf50" title="Công khai" /> : <Lock size={16} color="#999" title="Riêng tư" />}
+                  <button 
+                    onClick={() => togglePrivacy(deck)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', borderRadius: '50%', display: 'flex' }}
+                    title={deck.isPublic ? "Đang công khai - Nhấn để chuyển về riêng tư" : "Đang riêng tư - Nhấn để chia sẻ công khai"}
+                  >
+                    {deck.isPublic ? <Globe size={18} color="#4caf50" /> : <Lock size={18} color="#999" />}
+                  </button>
                 </div>
                 <p>{deck.description || 'Không có mô tả'}</p>
                 <div className="deck-card-footer">
