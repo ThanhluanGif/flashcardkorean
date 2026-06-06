@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import axiosInstance from '../api/axiosInstance';
-import { Deck } from '../types';
+import type { Deck } from '../types';
 
 interface DeckState {
   decks: Deck[];

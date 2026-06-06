@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Plus, Edit2, Trash2, Search } from 'lucide-react';
+import { ArrowLeft, Plus, Edit2, Trash2 } from 'lucide-react';
 import { useCardStore } from '../store/cardStore';
 import { useDeckStore } from '../store/deckStore';
-import { Card } from '../types';
+import type { Card } from '../types';
 import { toast } from 'react-toastify';
 import './CardExplorer.css';
 import './Dashboard.css'; // Re-use modal styles

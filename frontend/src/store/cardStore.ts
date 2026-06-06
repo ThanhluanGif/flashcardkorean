@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import axiosInstance from '../api/axiosInstance';
-import { Card } from '../types';
+import type { Card } from '../types';
 
 interface CardState {
   cards: Card[];

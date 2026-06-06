@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import axiosInstance from '../api/axiosInstance';
 import './Auth.css';
 
@@ -29,9 +30,20 @@ const RegisterPage: React.FC = () => {
 
     try {
       await axiosInstance.post('/users/register', formData);
-      navigate('/login', { state: { message: 'Đăng ký thành công! Vui lòng đăng nhập.' } });
+      toast.success('Đăng ký thành công! Đang chuyển hướng...');
+      setTimeout(() => {
+        navigate('/login', { state: { message: 'Đăng ký thành công! Vui lòng đăng nhập.' } });
+      }, 1500);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Đã có lỗi xảy ra khi đăng ký');
+      console.error('Registration error:', err);
+      const serverMessage = err.response?.data?.message;
+      if (serverMessage) {
+        setError(serverMessage);
+      } else if (err.code === 'ERR_NETWORK') {
+        setError('Không thể kết nối tới máy chủ Backend. Hãy chắc chắn Backend đang chạy!');
+      } else {
+        setError('Đã có lỗi xảy ra. Vui lòng kiểm tra lại thông tin.');
+      }
     } finally {
       setLoading(false);
     }

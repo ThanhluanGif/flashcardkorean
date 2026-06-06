@@ -1,5 +1,13 @@
 package com.thanhluan.flashcardkorean;
 
-public class FlashcardKoreanApplication {
-}
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+@SpringBootApplication
+public class FlashcardKoreanApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(FlashcardKoreanApplication.class, args);
+    }
+
+}

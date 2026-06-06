@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 import { useCardStore } from '../store/cardStore';
 import { useDeckStore } from '../store/deckStore';
-import { Card } from '../types';
+import type { Card } from '../types';
 import { toast } from 'react-toastify';
 import './StudyPage.css';
 
 const StudyPage: React.FC = () => {
   const { deckId } = useParams<{ deckId: string }>();
   const id = Number(deckId);
-  const navigate = useNavigate();
 
   const { fetchReviewCards, submitReview, loading } = useCardStore();
   const { decks, fetchDecks } = useDeckStore();

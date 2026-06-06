@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Plus, Edit2, Trash2, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useDeckStore } from '../store/deckStore';
-import { Deck } from '../types';
+import type { Deck } from '../types';
 import { toast } from 'react-toastify';
 import './Dashboard.css';
 

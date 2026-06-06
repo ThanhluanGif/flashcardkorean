@@ -1,23 +1,23 @@
 server:
-  port: 8080 # Port mặc định của server
+  port: 8082 # Đổi sang 8082 để tránh trùng cổng mạng của máy nhé bro
 
 spring:
   application:
     name: flashcardkorean
 
-  # Cấu hình kết nối MySQL (ĐIỀN THÔNG TIN THẬT CỦA BẠN VÀO ĐÂY SAU)
+  # Cấu hình kết nối MySQL thực tế theo Workbench của bạn
   datasource:
-    url: jdbc:mysql://localhost:3306/flashcard_db_fake?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: root_fake        # Thay bằng username mysql của bạn
-    password: password_fake    # Thay bằng password mysql của bạn
+    url: jdbc:mysql://localhost:3306/flashcard_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
-    # Tự động tạo/cập nhật bảng trong DB dựa trên code Entities (chỉ nên dùng update ở môi trường dev)
+    # Cơ chế tự động đồng bộ hóa Entities code Java với Database MySQL
     hibernate:
       ddl-auto: update
     
-    # Hiển thị câu lệnh SQL trên console để dễ debug
+    # Kích hoạt log để theo dõi câu lệnh SQL chạy dưới Console
     show-sql: true
     properties:
       hibernate:
