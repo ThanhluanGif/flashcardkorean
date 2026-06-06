@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Volume2 } from 'lucide-react';
 import { useCardStore } from '../store/cardStore';
 import { useDeckStore } from '../store/deckStore';
 import type { Card } from '../types';
@@ -32,6 +32,12 @@ const StudyPage: React.FC = () => {
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
+  };
+
+  const playAudio = (e: React.MouseEvent, url: string) => {
+    e.stopPropagation(); // Ngăn lật thẻ khi click vào loa
+    const audio = new Audio(url);
+    audio.play().catch(() => toast.error('Không thể phát âm thanh'));
   };
 
   const handleGrade = async (grade: number) => {
@@ -104,7 +110,21 @@ const StudyPage: React.FC = () => {
       <div className="flashcard-scene" onClick={handleFlip}>
         <div className={`flashcard ${isFlipped ? 'is-flipped' : ''}`}>
           <div className="flashcard-face flashcard-front">
-            <h2>{currentCard.front}</h2>
+            {currentCard.imageUrl && (
+              <img src={currentCard.imageUrl} alt="Flashcard hint" style={{ maxWidth: '100%', maxHeight: '150px', marginBottom: '15px', borderRadius: '8px' }} />
+            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <h2>{currentCard.front}</h2>
+              {currentCard.audioUrl && (
+                <button 
+                  className="audio-btn" 
+                  onClick={(e) => playAudio(e, currentCard.audioUrl!)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4a90e2' }}
+                >
+                  <Volume2 size={24} />
+                </button>
+              )}
+            </div>
             <div className="hint-text" style={{ marginTop: '20px' }}>Chạm để xem nghĩa</div>
           </div>
           <div className="flashcard-face flashcard-back">

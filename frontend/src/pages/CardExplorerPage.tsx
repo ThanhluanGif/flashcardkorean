@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Plus, Edit2, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Edit2, Trash2, Search, ChevronLeft, ChevronRight, Volume2 } from 'lucide-react';
 import { useCardStore } from '../store/cardStore';
 import { useDeckStore } from '../store/deckStore';
 import type { Card } from '../types';
@@ -12,7 +12,7 @@ const CardExplorerPage: React.FC = () => {
   const { deckId } = useParams<{ deckId: string }>();
   const id = Number(deckId);
 
-  const { cards, loading, fetchCardsByDeck, createCard, updateCard, deleteCard } = useCardStore();
+  const { cards, loading, fetchCardsByDeck, totalPages, createCard, updateCard, deleteCard } = useCardStore();
   const { decks, fetchDecks } = useDeckStore();
   
   const [filter, setFilter] = useState<'ALL' | 'NEW' | 'LEARNING' | 'REVIEW' | 'MASTERED'>('ALL');
@@ -22,13 +22,25 @@ const CardExplorerPage: React.FC = () => {
   const [front, setFront] = useState('');
   const [back, setBack] = useState('');
   const [example, setExample] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [audioUrl, setAudioUrl] = useState('');
+
+  // Pagination & Search state
+  const [page, setPage] = useState(0);
+  const [keyword, setKeyword] = useState('');
 
   const currentDeck = decks.find(d => d.id === id);
 
   useEffect(() => {
-    fetchCardsByDeck(id);
+    const timer = setTimeout(() => {
+      fetchCardsByDeck(id, page, 20, keyword);
+    }, 300); // Debounce search
+    return () => clearTimeout(timer);
+  }, [id, fetchCardsByDeck, page, keyword]);
+
+  useEffect(() => {
     if (decks.length === 0) fetchDecks();
-  }, [id, fetchCardsByDeck, fetchDecks, decks.length]);
+  }, [fetchDecks, decks.length]);
 
   const filteredCards = cards.filter(card => 
     filter === 'ALL' ? true : card.status === filter
@@ -40,11 +52,15 @@ const CardExplorerPage: React.FC = () => {
       setFront(card.front);
       setBack(card.back);
       setExample(card.example);
+      setImageUrl(card.imageUrl || '');
+      setAudioUrl(card.audioUrl || '');
     } else {
       setEditingCard(null);
       setFront('');
       setBack('');
       setExample('');
+      setImageUrl('');
+      setAudioUrl('');
     }
     setIsModalOpen(true);
   };
@@ -53,10 +69,10 @@ const CardExplorerPage: React.FC = () => {
     e.preventDefault();
     try {
       if (editingCard) {
-        await updateCard(editingCard.id, front, back, example);
+        await updateCard(editingCard.id, front, back, example, imageUrl, audioUrl);
         toast.success('Cập nhật thẻ thành công');
       } else {
-        await createCard(id, front, back, example);
+        await createCard(id, front, back, example, imageUrl, audioUrl);
         toast.success('Thêm thẻ mới thành công');
       }
       setIsModalOpen(false);
@@ -86,6 +102,11 @@ const CardExplorerPage: React.FC = () => {
     }
   };
 
+  const playAudio = (url: string) => {
+    const audio = new Audio(url);
+    audio.play().catch(e => toast.error('Không thể phát âm thanh'));
+  };
+
   return (
     <div className="explorer-container">
       <Link to="/" className="back-link">
@@ -97,9 +118,24 @@ const CardExplorerPage: React.FC = () => {
           <h1>{currentDeck?.title || 'Bộ thẻ'}</h1>
           <p style={{ color: '#666' }}>Danh sách tất cả các từ vựng trong bộ này</p>
         </div>
-        <button className="add-deck-btn" onClick={() => handleOpenModal()}>
-          <Plus size={20} /> Thêm thẻ mới
-        </button>
+        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+          <div className="search-wrapper" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <Search size={18} style={{ position: 'absolute', left: '10px', color: '#888' }} />
+            <input 
+              type="text" 
+              placeholder="Tìm kiếm từ vựng..." 
+              value={keyword}
+              onChange={(e) => {
+                setKeyword(e.target.value);
+                setPage(0);
+              }}
+              style={{ padding: '8px 12px 8px 35px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '14px' }}
+            />
+          </div>
+          <button className="add-deck-btn" onClick={() => handleOpenModal()}>
+            <Plus size={20} /> Thêm thẻ mới
+          </button>
+        </div>
       </div>
 
       <div className="filter-bar">
@@ -118,31 +154,63 @@ const CardExplorerPage: React.FC = () => {
         <div className="loading-spinner">Đang tải thẻ...</div>
       ) : filteredCards.length === 0 ? (
         <div className="empty-state">
-          <h3>Không tìm thấy thẻ nào</h3>
-          <p>Hãy bắt đầu thêm từ vựng mới vào bộ thẻ này.</p>
+          <h3>{keyword ? 'Không tìm thấy thẻ phù hợp' : 'Không tìm thấy thẻ nào'}</h3>
+          <p>{keyword ? 'Hãy thử tìm kiếm với từ khóa khác' : 'Hãy bắt đầu thêm từ vựng mới vào bộ thẻ này.'}</p>
         </div>
       ) : (
-        <div className="card-list">
-          {filteredCards.map((card) => (
-            <div key={card.id} className="card-item">
-              <div className="card-front">{card.front}</div>
-              <div className="card-back">{card.back}</div>
-              <div>
-                <span className={`status-badge ${getStatusClass(card.status)}`}>
-                  {card.status}
-                </span>
+        <>
+          <div className="card-list">
+            {filteredCards.map((card) => (
+              <div key={card.id} className="card-item">
+                <div className="card-media">
+                  {card.imageUrl && <img src={card.imageUrl} alt="Card media" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />}
+                  {card.audioUrl && (
+                    <button className="play-audio-btn" onClick={() => playAudio(card.audioUrl!)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#4a90e2' }}>
+                      <Volume2 size={18} />
+                    </button>
+                  )}
+                </div>
+                <div className="card-front">{card.front}</div>
+                <div className="card-back">{card.back}</div>
+                <div>
+                  <span className={`status-badge ${getStatusClass(card.status)}`}>
+                    {card.status}
+                  </span>
+                </div>
+                <div className="card-actions">
+                  <button className="action-btn edit" onClick={() => handleOpenModal(card)}>
+                    <Edit2 size={18} />
+                  </button>
+                  <button className="action-btn delete" onClick={() => handleDelete(card.id)}>
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </div>
-              <div className="card-actions">
-                <button className="action-btn edit" onClick={() => handleOpenModal(card)}>
-                  <Edit2 size={18} />
-                </button>
-                <button className="action-btn delete" onClick={() => handleDelete(card.id)}>
-                  <Trash2 size={18} />
-                </button>
-              </div>
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="pagination-controls" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '15px', marginTop: '30px' }}>
+              <button 
+                disabled={page === 0} 
+                onClick={() => setPage(page - 1)}
+                className="pagination-btn"
+                style={{ padding: '8px', borderRadius: '50%', border: '1px solid #ddd', background: 'white', cursor: page === 0 ? 'not-allowed' : 'pointer', display: 'flex' }}
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <span style={{ fontSize: '14px', fontWeight: '500' }}>Trang {page + 1} / {totalPages}</span>
+              <button 
+                disabled={page === totalPages - 1} 
+                onClick={() => setPage(page + 1)}
+                className="pagination-btn"
+                style={{ padding: '8px', borderRadius: '50%', border: '1px solid #ddd', background: 'white', cursor: page === totalPages - 1 ? 'not-allowed' : 'pointer', display: 'flex' }}
+              >
+                <ChevronRight size={20} />
+              </button>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       {isModalOpen && (
@@ -180,6 +248,26 @@ const CardExplorerPage: React.FC = () => {
                   onChange={(e) => setExample(e.target.value)}
                   placeholder="Nhập ví dụ minh họa hoặc cách dùng..."
                 />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Link ảnh (URL)</label>
+                  <input
+                    type="text"
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Link âm thanh (URL)</label>
+                  <input
+                    type="text"
+                    value={audioUrl}
+                    onChange={(e) => setAudioUrl(e.target.value)}
+                    placeholder="https://example.com/audio.mp3"
+                  />
+                </div>
               </div>
               <div className="modal-actions">
                 <button type="button" className="cancel-btn" onClick={() => setIsModalOpen(false)}>

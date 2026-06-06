@@ -30,6 +30,9 @@ public class Deck {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "is_public")
+    private boolean isPublic = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

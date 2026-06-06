@@ -2,14 +2,21 @@ package com.thanhluan.flashcardkorean.modules.cards.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import com.thanhluan.flashcardkorean.modules.cards.dtos.CardRequest;
 import com.thanhluan.flashcardkorean.modules.cards.dtos.CardResponse;
 import com.thanhluan.flashcardkorean.modules.cards.dtos.CardReviewRequest;
+import com.thanhluan.flashcardkorean.modules.cards.dtos.UserStatsResponse;
 import com.thanhluan.flashcardkorean.modules.cards.entities.Card;
 import com.thanhluan.flashcardkorean.modules.cards.services.CardService;
+import com.thanhluan.flashcardkorean.modules.users.entities.User;
+import com.thanhluan.flashcardkorean.modules.users.repositories.UserRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +27,21 @@ import java.util.stream.Collectors;
 public class CardController {
 
     private final CardService cardService;
+    private final UserRepository userRepository;
+
+    private Long getCurrentUserId() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getId();
+    }
+
+    // Lấy thống kê tổng quan của user hiện tại
+    @GetMapping("/stats")
+    public ResponseEntity<UserStatsResponse> getMyStats() {
+        Long userId = getCurrentUserId();
+        return ResponseEntity.ok(cardService.getUserStats(userId));
+    }
 
     // Tạo Card mới trong một Deck
     @PostMapping("/deck/{deckId}")
@@ -28,18 +50,22 @@ public class CardController {
                 .front(request.getFront())
                 .back(request.getBack())
                 .example(request.getExample())
+                .imageUrl(request.getImageUrl())
+                .audioUrl(request.getAudioUrl())
                 .build();
 
         Card savedCard = cardService.createCard(deckId, card);
         return new ResponseEntity<>(mapToResponse(savedCard), HttpStatus.CREATED);
     }
 
-    // Lấy toàn bộ Card của một Deck
+    // Lấy danh sách Card của một Deck (hỗ trợ phân trang và tìm kiếm)
     @GetMapping("/deck/{deckId}")
-    public ResponseEntity<List<CardResponse>> getCardsByDeckId(@PathVariable Long deckId) {
-        List<CardResponse> responses = cardService.getCardsByDeckId(deckId).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public ResponseEntity<Page<CardResponse>> getCardsByDeckId(
+            @PathVariable Long deckId,
+            @RequestParam(required = false) String keyword,
+            @PageableDefault(size = 20) Pageable pageable) {
+        Page<CardResponse> responses = cardService.getCardsPaginated(deckId, keyword, pageable)
+                .map(this::mapToResponse);
         return ResponseEntity.ok(responses);
     }
 
@@ -66,6 +92,8 @@ public class CardController {
                 .front(request.getFront())
                 .back(request.getBack())
                 .example(request.getExample())
+                .imageUrl(request.getImageUrl())
+                .audioUrl(request.getAudioUrl())
                 .build();
         
         Card updatedCard = cardService.updateCard(cardId, card);
@@ -89,6 +117,8 @@ public class CardController {
                 .deckId(card.getDeck().getId())
                 .status(card.getStatus())
                 .nextReviewDate(card.getNextReviewDate())
+                .imageUrl(card.getImageUrl())
+                .audioUrl(card.getAudioUrl())
                 .createdAt(card.getCreatedAt())
                 .updatedAt(card.getUpdatedAt())
                 .build();

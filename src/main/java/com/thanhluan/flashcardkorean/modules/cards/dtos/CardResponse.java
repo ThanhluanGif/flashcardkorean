@@ -16,6 +16,8 @@ public class CardResponse {
     private Long deckId;
     private Card.CardStatus status;
     private LocalDateTime nextReviewDate;
+    private String imageUrl;
+    private String audioUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

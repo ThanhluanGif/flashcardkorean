@@ -21,14 +21,24 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// Thêm interceptor để xử lý lỗi 401 (Unauthorized)
+// Thêm interceptor để xử lý lỗi
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      // Tránh redirect vòng lặp nếu đã ở trang login
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
     }
+    
+    // Trích xuất message từ backend nếu có
+    const backendMessage = error.response?.data?.message || error.response?.data?.error;
+    if (backendMessage) {
+      error.message = backendMessage;
+    }
+    
     return Promise.reject(error);
   }
 );

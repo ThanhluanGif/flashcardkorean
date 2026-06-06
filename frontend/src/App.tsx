@@ -7,6 +7,7 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import CardExplorerPage from './pages/CardExplorerPage';
 import StudyPage from './pages/StudyPage';
+import CommunityPage from './pages/CommunityPage';
 import MainLayout from './layouts/MainLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuthStore } from './store/authStore';
@@ -35,6 +36,7 @@ function App() {
               <Route path="/decks" element={<DashboardPage />} />
               <Route path="/decks/:deckId" element={<CardExplorerPage />} />
               <Route path="/study/:deckId" element={<StudyPage />} />
+              <Route path="/community" element={<CommunityPage />} />
             </Route>
           </Route>
 

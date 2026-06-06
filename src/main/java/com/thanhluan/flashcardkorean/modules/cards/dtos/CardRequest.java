@@ -13,4 +13,8 @@ public class CardRequest {
     private String back;
 
     private String example;
+
+    private String imageUrl;
+
+    private String audioUrl;
 }

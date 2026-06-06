@@ -12,6 +12,7 @@ public class DeckResponse {
     private String title;
     private String description;
     private Long userId;
+    private boolean isPublic;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

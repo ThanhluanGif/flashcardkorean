@@ -42,6 +42,12 @@ public class Card {
     @Column(name = "next_review_date")
     private LocalDateTime nextReviewDate;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(name = "audio_url")
+    private String audioUrl;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
